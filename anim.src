@@ -1,0 +1,127 @@
+// machin-demo-anim — a 2D procedural animation: a swirling flow field of 1200
+// particles pulled into vortices around three centers that themselves drift on
+// sine paths. Every pixel of motion is math over time — no assets, no physics
+// engine. Written in machin (MFL), drawn with raylib through the C FFI.
+//
+//   ./build.sh && ./machin-demo-anim
+//
+// This is the showcase for machin's native math builtins (v0.46.0): the field is
+// sin/cos/atan2/hypot/pi, and color is HSV by flow direction. It composes the
+// existing FFI (scalars + by-value Color, struct-return ColorFromHSV) — no new
+// machin feature needed; the point is that the math suite makes it expressible.
+
+extern "raylib" {
+    header "raylib.h"
+    link "raylib" link "GL" link "m" link "pthread" link "dl" link "rt" link "X11"
+    cstruct Color { r u8 g u8 b u8 a u8 }
+    fn InitWindow(i32, i32, string)
+    fn SetTargetFPS(i32)
+    fn WindowShouldClose() bool
+    fn BeginDrawing()
+    fn EndDrawing()
+    fn ClearBackground(Color)
+    fn DrawCircle(i32, i32, f32, Color)
+    fn DrawText(string, i32, i32, i32, Color)
+    fn ColorFromHSV(f32, f32, f32) Color
+    fn CloseWindow()
+}
+
+func W() (n) { n = 900.0 }
+func H() (n) { n = 640.0 }
+func N() (n) { n = 1200 }        // particle count
+func TAU() (n) { n = 2.0 * pi() }
+
+func col(r, g, b) (c) { c = Color{r, g, b, 255} }
+
+// a random float in [0, max)
+func rndf(max) (v) {
+    r := rand_bytes(2)
+    v = float((byte_at(r, 0) << 8 | byte_at(r, 1)) % max)
+}
+
+// the tangential pull one vortex center exerts at (x, y): a velocity that
+// circles the center, stronger the closer you are. Pure math — hypot for the
+// distance, atan2 for the bearing, +pi/2 to turn it tangential.
+func swirl(x, y, cx, cy) (vx, vy) {
+    dx := cx - x
+    dy := cy - y
+    d := hypot(dx, dy) + 8.0
+    ang := atan2(dy, dx) + pi() / 2.0
+    w := 70.0 / d
+    vx = cos(ang) * w
+    vy = sin(ang) * w
+}
+
+func main() {
+    InitWindow(int(W()), int(H()), "machin - procedural flow field")
+    SetTargetFPS(60)
+
+    // particles scattered across the screen
+    px := []float{}
+    py := []float{}
+    i := 0
+    while i < N() {
+        px = append(px, rndf(900))
+        py = append(py, rndf(640))
+        i = i + 1
+    }
+
+    wc := W() / 2.0
+    hc := H() / 2.0
+    t := 0.0
+
+    while WindowShouldClose() == false {
+        t = t + 0.01
+
+        // three vortex centers drifting on Lissajous paths
+        cx0 := wc + 250.0 * sin(t * 0.70)
+        cy0 := hc + 170.0 * cos(t * 0.90)
+        cx1 := wc + 290.0 * sin(t * 1.10 + 2.0)
+        cy1 := hc + 200.0 * cos(t * 0.60 + 1.0)
+        cx2 := wc + 230.0 * cos(t * 0.80)
+        cy2 := hc + 210.0 * sin(t * 1.30)
+
+        BeginDrawing()
+        ClearBackground(col(12, 12, 20))
+
+        i = 0
+        while i < N() {
+            x := px[i]
+            y := py[i]
+
+            a0, b0 := swirl(x, y, cx0, cy0)
+            a1, b1 := swirl(x, y, cx1, cy1)
+            a2, b2 := swirl(x, y, cx2, cy2)
+            vx := a0 + a1 + a2
+            vy := b0 + b1 + b2
+
+            // cap the speed so the field stays smooth
+            sp := hypot(vx, vy)
+            if sp > 3.2 {
+                vx = vx / sp * 3.2
+                vy = vy / sp * 3.2
+            }
+
+            x = x + vx
+            y = y + vy
+            // wrap at the edges
+            if x < 0.0 { x = x + W() }
+            if x >= W() { x = x - W() }
+            if y < 0.0 { y = y + H() }
+            if y >= H() { y = y - H() }
+            px[i] = x
+            py[i] = y
+
+            // color by flow direction (hue around the wheel)
+            hue := fmod((atan2(vy, vx) + pi()) / TAU() * 360.0 + t * 40.0, 360.0)
+            DrawCircle(int(x), int(y), 1.6, ColorFromHSV(hue, 0.65, 1.0))
+            i = i + 1
+        }
+
+        DrawText("machin - procedural flow field", 16, 14, 22, col(235, 235, 245))
+        DrawText("native sin / cos / atan2 / hypot / pi over time", 16, 42, 16, col(150, 150, 170))
+        EndDrawing()
+    }
+
+    CloseWindow()
+}
