@@ -1,9 +1,9 @@
-// machin-demo-anim — a 2D procedural animation: a swirling flow field of 1200
+// machin-game-demo-anim — a 2D procedural animation: a swirling flow field of 1200
 // particles pulled into vortices around three centers that themselves drift on
 // sine paths. Every pixel of motion is math over time — no assets, no physics
 // engine. Written in machin (MFL), drawn with raylib through the C FFI.
 //
-//   ./build.sh && ./machin-demo-anim
+//   ./build.sh && ./machin-game-demo-anim
 //
 // This is the showcase for machin's native math builtins (v0.46.0): the field is
 // sin/cos/atan2/hypot/pi, and color is HSV by flow direction. It composes the

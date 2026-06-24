@@ -1,9 +1,9 @@
 ---
-name: machin-demo-anim
-description: Build, run, and modify machin-demo-anim — a 2D procedural flow-field animation in machin (MFL) via raylib. Use when working on this repo, or as the worked example of native math (sin/cos/atan2/hypot/pi) driving procedural motion, particle state in parallel slices, and HSV color via a struct-returning FFI call.
+name: machin-game-demo-anim
+description: Build, run, and modify machin-game-demo-anim — a 2D procedural flow-field animation in machin (MFL) via raylib. Use when working on this repo, or as the worked example of native math (sin/cos/atan2/hypot/pi) driving procedural motion, particle state in parallel slices, and HSV color via a struct-returning FFI call.
 ---
 
-# machin-demo-anim
+# machin-game-demo-anim
 
 A 2D procedural flow-field animation: 1200 particles swirling around three drifting vortex centers, written in [machin](https://github.com/javimosch/machin) (MFL) and drawn with raylib. It is the reference example for **procedural animation / native math** in machin.
 
@@ -12,8 +12,8 @@ A 2D procedural flow-field animation: 1200 particles swirling around three drift
 ## Build & run
 
 ```bash
-./build.sh                 # machin encode anim.src -> anim.mfl, then machin build -> ./machin-demo-anim
-./machin-demo-anim
+./build.sh                 # machin encode anim.src -> anim.mfl, then machin build -> ./machin-game-demo-anim
+./machin-game-demo-anim
 ```
 
 Needs `machin` **v0.46.0+** (native math), a C compiler, **raylib**, and a display. `build.sh` prefers a system raylib, else vendors the prebuilt static release into `vendor/` (no root).

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build machin-demo-anim. Uses a system raylib if one is installed; otherwise
+# Build machin-game-demo-anim. Uses a system raylib if one is installed; otherwise
 # fetches raylib's prebuilt *static* release into vendor/ (no root needed) and
 # links that. The committed source stays system-style; the vendored path is
 # injected into a throwaway copy so anim.src is never rewritten.
@@ -35,5 +35,5 @@ else
     mv "$tmp" anim.mfl
 fi
 
-"$MACHIN" build anim.mfl -o machin-demo-anim
-echo "built ./machin-demo-anim"
+"$MACHIN" build anim.mfl -o machin-game-demo-anim
+echo "built ./machin-game-demo-anim"
